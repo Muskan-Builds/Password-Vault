@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vault - Secure Manager</title>
+    
+    <!-- PWA & Mobile Meta -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2092/2092663.png">
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Lock Screen -->
+        <section id="lock-screen" class="screen active">
+            <div class="lock-header">
+                <div class="glow-orb"></div>
+                <i data-lucide="shield-check" class="lock-icon"></i>
+                <h2>Vault Secure</h2>
+                <p id="lock-msg">Enter Master Password to unlock</p>
+            </div>
+            <div class="lock-form">
+                <input type="password" id="master-pass-input" placeholder="••••••••" autofocus>
+                <button id="unlock-btn" class="primary-btn">Unlock Vault</button>
+                <button id="biometric-btn" class="secondary-btn" style="display: none;">
+                    <i data-lucide="scan-face"></i> Use FaceID
+                </button>
+            </div>
+        </section>
+
+        <!-- Home Screen -->
+        <main id="home-screen" class="screen">
+            <header>
+                <div class="header-top">
+                    <h1>Vault</h1>
+                    <div class="header-actions">
+                        <button class="icon-btn" id="bio-setup-btn" title="Setup Biometrics"><i data-lucide="fingerprint"></i></button>
+                        <button class="icon-btn" id="export-btn"><i data-lucide="download"></i></button>
+                        <button class="icon-btn" id="lock-app-btn"><i data-lucide="lock"></i></button>
+                    </div>
+                </div>
+                <div class="search-bar">
+                    <i data-lucide="search"></i>
+                    <input type="text" placeholder="Search companies..." id="search-input">
+                </div>
+            </header>
+
+            <div id="vault-items" class="vault-list">
+                <!-- Items injected here -->
+            </div>
+
+            <button class="fab" id="add-btn">
+                <i data-lucide="plus"></i>
+            </button>
+        </main>
+
+        <!-- Add/Edit Screen -->
+        <section id="edit-screen" class="screen">
+            <header class="modal-header">
+                <button class="icon-btn back-btn"><i data-lucide="chevron-left"></i></button>
+                <h2>Add Account</h2>
+                <div style="width: 40px"></div>
+            </header>
+            
+            <form id="vault-form">
+                <div class="form-group">
+                    <label>Company / Website</label>
+                    <div class="input-box">
+                        <i data-lucide="building"></i>
+                        <input type="text" id="site-name" placeholder="Google, Amazon..." required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Login Email</label>
+                    <div class="input-box">
+                        <i data-lucide="mail"></i>
+                        <input type="email" id="email" placeholder="email@example.com">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Username</label>
+                    <div class="input-box">
+                        <i data-lucide="user"></i>
+                        <input type="text" id="username" placeholder="Username">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="input-box">
+                        <i data-lucide="key-round"></i>
+                        <input type="password" id="password" placeholder="••••••••" required>
+                        <button type="button" id="toggle-pass" class="icon-btn"><i data-lucide="eye"></i></button>
+                    </div>
+                </div>
+                <button type="submit" class="primary-btn save-btn">Encrypt & Save</button>
+            </form>
+        </section>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast">Copied to clipboard!</div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
