@@ -36,18 +36,33 @@ function decrypt(ciphertext, key) {
     }
 }
 
-// --- Biometric Logic ---
+// --- Biometric Logic (FaceID/Fingerprint) ---
 async function setupBiometrics() {
-    if (!window.PublicKeyCredential) return alert("Biometrics not supported on this device.");
-    
-    // Simulate biometric registration (In production, use WebAuthn)
-    const confirmSetup = confirm("Enable FaceID for this vault?");
-    if (confirmSetup) {
+    if (!window.PublicKeyCredential) return alert("Biometrics not supported on this device or connection is not HTTPS.");
+
+    // Trigger native biometric registration prompt
+    try {
+        const challenge = new Uint8Array(32);
+        window.crypto.getRandomValues(challenge);
+
+        await navigator.credentials.create({
+            publicKey: {
+                challenge,
+                rp: { name: "Vault" },
+                user: { id: new Uint8Array(16), name: "user", displayName: "User" },
+                pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+                authenticatorSelection: { authenticatorAttachment: "platform" }
+            }
+        });
+
         localStorage.setItem('bio_enabled', 'true');
-        // We store an encrypted version of the master key that can be "unlocked" by biometrics
-        localStorage.setItem('bio_key', encrypt(masterKey, "device-hardware-id")); 
-        alert("FaceID Enabled!");
+        // Scramble the master key using a local "device" key
+        localStorage.setItem('bio_key', encrypt(masterKey, "v-device-lock-123"));
+        showToast("FaceID Enabled!");
         checkBioStatus();
+    } catch (e) {
+        console.error(e);
+        alert("Setup failed. Make sure you are on HTTPS.");
     }
 }
 
@@ -58,13 +73,21 @@ function checkBioStatus() {
 }
 
 biometricBtn.onclick = async () => {
-    // This triggers the native browser biometric prompt
     try {
-        // Simple prompt simulation (Real WebAuthn would go here)
-        alert("FaceID Authenticating..."); 
+        const challenge = new Uint8Array(32);
+        window.crypto.getRandomValues(challenge);
+
+        // This triggers the REAL native FaceID/Fingerprint prompt instantly
+        await navigator.credentials.get({
+            publicKey: {
+                challenge,
+                authenticatorSelection: { authenticatorAttachment: "platform" }
+            }
+        });
+
         const storedKey = localStorage.getItem('bio_key');
-        const decryptedMaster = decrypt(storedKey, "device-hardware-id");
-        
+        const decryptedMaster = decrypt(storedKey, "v-device-lock-123");
+
         if (decryptedMaster) {
             masterKey = decryptedMaster;
             const stored = localStorage.getItem('vault_v1');
@@ -73,7 +96,7 @@ biometricBtn.onclick = async () => {
             renderVault();
         }
     } catch (e) {
-        alert("FaceID Failed");
+        console.log("Biometric auth cancelled or failed");
     }
 };
 
@@ -91,7 +114,7 @@ function saveToLocal() {
 
 function renderVault(filter = '') {
     vaultList.innerHTML = '';
-    const filtered = vaultItems.filter(i => 
+    const filtered = vaultItems.filter(i =>
         i.site.toLowerCase().includes(filter.toLowerCase())
     );
 
@@ -116,7 +139,6 @@ function renderVault(filter = '') {
                     <i data-lucide="copy"></i>
                 </button>
             `;
-            card.onclick = () => editItem(index);
             vaultList.appendChild(card);
         });
     }
@@ -126,10 +148,11 @@ function renderVault(filter = '') {
 function copyPass(text, e) {
     e.stopPropagation();
     navigator.clipboard.writeText(text);
-    showToast();
+    showToast("Copied to clipboard!");
 }
 
-function showToast() {
+function showToast(msg) {
+    toast.innerText = msg;
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 2000);
 }
@@ -141,7 +164,6 @@ unlockBtn.onclick = () => {
 
     const stored = localStorage.getItem('vault_v1');
     if (!stored) {
-        // New User
         masterKey = pwd;
         vaultItems = [];
         saveToLocal();
@@ -157,7 +179,6 @@ unlockBtn.onclick = () => {
         } else {
             masterPassInput.classList.add('shake');
             setTimeout(() => masterPassInput.classList.remove('shake'), 500);
-            alert("Incorrect Master Password");
         }
     }
 };
@@ -201,6 +222,7 @@ exportBtn.onclick = () => {
     document.body.appendChild(downloadAnchorNode);
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
+    showToast("Backup downloaded!");
 };
 
 // Start
