@@ -131,6 +131,38 @@ h1 {
     font-size: 16px;
 }
 
+/* Categories */
+.category-filter {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.category-filter::-webkit-scrollbar {
+    display: none;
+}
+
+.cat-chip {
+    padding: 8px 16px;
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px;
+    color: var(--text-dim);
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.cat-chip.active {
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+}
+
 /* Vault List */
 .vault-list {
     flex: 1;
@@ -148,11 +180,11 @@ h1 {
     margin-bottom: 12px;
     border: 1px solid rgba(255,255,255,0.03);
     transition: 0.2s;
+    position: relative;
 }
 
 .vault-card:active {
     transform: scale(0.98);
-    background: var(--surface-light);
 }
 
 .card-icon {
@@ -176,9 +208,36 @@ h1 {
     margin-bottom: 2px;
 }
 
-.card-content p {
+.card-subtitle {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.card-subtitle p {
     font-size: 13px;
     color: var(--text-dim);
+}
+
+.card-date {
+    font-size: 10px !important;
+    opacity: 0.5;
+    margin-top: 4px;
+}
+
+.privacy-masked {
+    filter: blur(5px);
+    transition: 0.3s;
+    user-select: none;
+}
+
+.privacy-masked.revealed {
+    filter: blur(0);
+}
+
+.card-actions {
+    display: flex;
+    gap: 8px;
 }
 
 /* Lock Screen */

@@ -40,7 +40,7 @@
                     <i data-lucide="scan-face"></i> Use FaceID
                 </button>
             </div>
-            <p class="version-tag">v1.1</p>
+            <p class="version-tag">v1.2</p>
         </section>
 
         <!-- Home Screen -->
@@ -49,15 +49,22 @@
                 <div class="header-top">
                     <h1>Vault</h1>
                     <div class="header-actions">
-                        <button class="icon-btn" id="bio-setup-btn" title="Setup Biometrics"><i
-                                data-lucide="fingerprint"></i></button>
-                        <button class="icon-btn" id="export-btn"><i data-lucide="download"></i></button>
-                        <button class="icon-btn" id="lock-app-btn"><i data-lucide="lock"></i></button>
+                        <button class="icon-btn" id="bio-setup-btn" title="Setup Biometrics"><i data-lucide="fingerprint"></i></button>
+                        <button class="icon-btn" id="export-btn" title="Export Backup"><i data-lucide="download"></i></button>
+                        <button class="icon-btn" id="import-btn" title="Import Backup"><i data-lucide="upload"></i></button>
+                        <button class="icon-btn" id="lock-app-btn" title="Lock App"><i data-lucide="lock"></i></button>
+                        <input type="file" id="import-file" style="display: none;" accept=".json">
                     </div>
                 </div>
                 <div class="search-bar">
                     <i data-lucide="search"></i>
                     <input type="text" placeholder="Search companies..." id="search-input">
+                </div>
+                <div class="category-filter">
+                    <button class="cat-chip active" data-cat="All">All</button>
+                    <button class="cat-chip" data-cat="Career">Career</button>
+                    <button class="cat-chip" data-cat="Finance">Finance</button>
+                    <button class="cat-chip" data-cat="Social">Social</button>
                 </div>
             </header>
 
@@ -80,24 +87,36 @@
 
             <form id="vault-form">
                 <div class="form-group">
-                    <label>Company / Website</label>
+                    <label>Company Name</label>
                     <div class="input-box">
                         <i data-lucide="building"></i>
                         <input type="text" id="site-name" placeholder="Google, Amazon..." required>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Login Email</label>
+                    <label>Website URL (Optional)</label>
                     <div class="input-box">
-                        <i data-lucide="mail"></i>
-                        <input type="email" id="email" placeholder="email@example.com">
+                        <i data-lucide="link"></i>
+                        <input type="url" id="site-url" placeholder="https://career.google.com">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Username</label>
+                    <label>Login Email / Username</label>
                     <div class="input-box">
-                        <i data-lucide="user"></i>
-                        <input type="text" id="username" placeholder="Username">
+                        <i data-lucide="mail"></i>
+                        <input type="text" id="email" placeholder="email@example.com">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <div class="input-box">
+                        <i data-lucide="tag"></i>
+                        <select id="category" required style="background:transparent; border:none; color:white; width:100%; outline:none;">
+                            <option value="Career">Career</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Social">Social</option>
+                            <option value="Other" selected>Other</option>
+                        </select>
                     </div>
                 </div>
                 <div class="form-group">
