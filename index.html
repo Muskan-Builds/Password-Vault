@@ -1,25 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Vault - Secure Manager</title>
-    
+
     <!-- PWA & Mobile Meta -->
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2092/2092663.png">
-    
+
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    
+
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="app-container">
         <!-- Lock Screen -->
@@ -29,6 +31,7 @@
                 <i data-lucide="shield-check" class="lock-icon"></i>
                 <h2>Vault Secure</h2>
                 <p id="lock-msg">Enter Master Password to unlock</p>
+                <p id="lock-status" class="lock-status"></p>
             </div>
             <div class="lock-form">
                 <input type="password" id="master-pass-input" placeholder="••••••••" autofocus>
@@ -45,7 +48,8 @@
                 <div class="header-top">
                     <h1>Vault</h1>
                     <div class="header-actions">
-                        <button class="icon-btn" id="bio-setup-btn" title="Setup Biometrics"><i data-lucide="fingerprint"></i></button>
+                        <button class="icon-btn" id="bio-setup-btn" title="Setup Biometrics"><i
+                                data-lucide="fingerprint"></i></button>
                         <button class="icon-btn" id="export-btn"><i data-lucide="download"></i></button>
                         <button class="icon-btn" id="lock-app-btn"><i data-lucide="lock"></i></button>
                     </div>
@@ -72,7 +76,7 @@
                 <h2>Add Account</h2>
                 <div style="width: 40px"></div>
             </header>
-            
+
             <form id="vault-form">
                 <div class="form-group">
                     <label>Company / Website</label>
@@ -113,4 +117,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>

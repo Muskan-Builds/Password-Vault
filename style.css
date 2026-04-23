@@ -194,6 +194,22 @@ h1 {
     position: relative;
 }
 
+.lock-status {
+    height: 20px;
+    margin-top: 15px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.lock-status.error {
+    color: var(--danger);
+}
+
+.lock-status.loading {
+    color: var(--accent);
+}
+
 .glow-orb {
     position: absolute;
     top: 50%;
@@ -227,6 +243,19 @@ h1 {
     letter-spacing: 4px;
     outline: none;
     margin-bottom: 20px;
+    transition: 0.2s;
+}
+
+#master-pass-input.shake {
+    animation: shake 0.4s ease;
+    border-color: var(--danger);
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    50% { transform: translateX(10px); }
+    75% { transform: translateX(-5px); }
 }
 
 /* Buttons */
@@ -328,6 +357,7 @@ h1 {
     font-size: 14px;
     transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     opacity: 0;
+    z-index: 1000;
 }
 
 .toast.show {

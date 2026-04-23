@@ -20,6 +20,7 @@ const biometricBtn = document.getElementById('biometric-btn');
 const toast = document.getElementById('toast');
 const togglePassBtn = document.getElementById('toggle-pass');
 const passwordInput = document.getElementById('password');
+const lockStatus = document.getElementById('lock-status');
 
 // --- Encryption Core ---
 function encrypt(data, key) {
@@ -40,7 +41,6 @@ function decrypt(ciphertext, key) {
 async function setupBiometrics() {
     if (!window.PublicKeyCredential) return alert("Biometrics not supported on this device or connection is not HTTPS.");
 
-    // Trigger native biometric registration prompt
     try {
         const challenge = new Uint8Array(32);
         window.crypto.getRandomValues(challenge);
@@ -56,13 +56,11 @@ async function setupBiometrics() {
         });
 
         localStorage.setItem('bio_enabled', 'true');
-        // Scramble the master key using a local "device" key
         localStorage.setItem('bio_key', encrypt(masterKey, "v-device-lock-123"));
         showToast("FaceID Enabled!");
         checkBioStatus();
     } catch (e) {
         console.error(e);
-        alert("Setup failed. Make sure you are on HTTPS.");
     }
 }
 
@@ -72,12 +70,18 @@ function checkBioStatus() {
     }
 }
 
+function setLockStatus(msg, isError = false) {
+    lockStatus.innerText = msg;
+    lockStatus.className = 'lock-status ' + (isError ? 'error' : 'loading');
+    if (!msg) lockStatus.className = 'lock-status';
+}
+
 biometricBtn.onclick = async () => {
     try {
+        setLockStatus("Verifying Identity...");
         const challenge = new Uint8Array(32);
         window.crypto.getRandomValues(challenge);
 
-        // This triggers the REAL native FaceID/Fingerprint prompt instantly
         await navigator.credentials.get({
             publicKey: {
                 challenge,
@@ -92,11 +96,16 @@ biometricBtn.onclick = async () => {
             masterKey = decryptedMaster;
             const stored = localStorage.getItem('vault_v1');
             vaultItems = decrypt(stored, masterKey) || [];
-            showScreen('home-screen');
-            renderVault();
+            setLockStatus("Access Granted");
+            setTimeout(() => {
+                showScreen('home-screen');
+                renderVault();
+                setLockStatus("");
+            }, 500);
         }
     } catch (e) {
-        console.log("Biometric auth cancelled or failed");
+        setLockStatus("Authentication Failed", true);
+        setTimeout(() => setLockStatus(""), 2000);
     }
 };
 
@@ -178,7 +187,11 @@ unlockBtn.onclick = () => {
             renderVault();
         } else {
             masterPassInput.classList.add('shake');
-            setTimeout(() => masterPassInput.classList.remove('shake'), 500);
+            setLockStatus("Invalid Master Password", true);
+            setTimeout(() => {
+                masterPassInput.classList.remove('shake');
+                setLockStatus("");
+            }, 1500);
         }
     }
 };
