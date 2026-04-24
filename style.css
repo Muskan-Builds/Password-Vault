@@ -476,3 +476,59 @@ h1 {
     opacity: 0.4;
     letter-spacing: 1px;
 }
+
+/* Swipe-to-Delete Elements */
+.vault-item-container {
+    position: relative;
+    width: 100%;
+    margin-bottom: 12px;
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--danger);
+    touch-action: pan-y; /* allow vertical scroll, intercept horizontal */
+}
+
+/* The delete button sits behind the card on the right */
+.delete-action-btn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    background: var(--danger);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    z-index: 1; /* behind card */
+}
+
+.delete-action-btn:active {
+    background: #dc2626;
+}
+
+/* Redefine card to be a slider */
+.vault-card {
+    position: relative;
+    z-index: 2; /* explicitly above delete btn */
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 0; /* overridden by container */
+    border: 1px solid rgba(255,255,255,0.03);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+}
+
+/* Remove hover/active scale when dragged */
+.vault-card.dragging {
+    transition: none; /* disable transition while dragging */
+}
+

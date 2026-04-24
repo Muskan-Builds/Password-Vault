@@ -10,6 +10,7 @@ let masterKey = "";
 let currentCategory = 'All';
 let inactivityTimer;
 let wrongAttempts = parseInt(localStorage.getItem('wrong_attempts') || '0');
+let editingItemId = null;
 
 // Supabase Init
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -229,6 +230,14 @@ function renderVault(filter = '') {
         vaultList.innerHTML = `<div class="empty-state"><i data-lucide="shield-alert"></i><p>Empty Vault</p></div>`;
     } else {
         filtered.forEach((item) => {
+            const container = document.createElement('div');
+            container.className = 'vault-item-container';
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'delete-action-btn';
+            delBtn.innerHTML = '<i data-lucide="trash-2"></i>';
+            delBtn.onclick = () => deleteItem(item.id);
+
             const card = document.createElement('div');
             card.className = 'vault-card';
             let iconType = (item.category === 'Career') ? 'briefcase' : (item.category === 'Finance') ? 'credit-card' : (item.category === 'Social') ? 'share-2' : 'globe';
@@ -242,9 +251,57 @@ function renderVault(filter = '') {
                     ${item.url ? `<button class="icon-btn" onclick="visitSite('${item.url}')"><i data-lucide="external-link"></i></button>` : ''}
                     <button class="icon-btn" onclick="togglePrivacy('${item.id}', this)"><i data-lucide="eye"></i></button>
                     <button class="icon-btn" onclick="copyPass('${item.password}', event)"><i data-lucide="copy"></i></button>
+                    <button class="icon-btn" onclick="editItem(${item.id})"><i data-lucide="edit-2"></i></button>
                 </div>
             `;
-            vaultList.appendChild(card);
+
+            // Swipe Logic
+            let startX = 0;
+            let currentX = 0;
+            let isDragging = false;
+            const threshold = -50; 
+
+            const handleStart = (e) => {
+                if (e.target.closest('.icon-btn')) return; // let buttons work
+                startX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+                isDragging = true;
+                card.classList.add('dragging');
+            };
+
+            const handleMove = (e) => {
+                if (!isDragging) return;
+                const x = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+                currentX = x - startX;
+                // Allow only left swipe, cap at -100
+                if (currentX < 0) {
+                    currentX = Math.max(currentX, -100);
+                    card.style.transform = `translateX(${currentX}px)`;
+                }
+            };
+
+            const handleEnd = () => {
+                if (!isDragging) return;
+                isDragging = false;
+                card.classList.remove('dragging');
+                if (currentX < threshold) {
+                    currentX = -80; // revealing delete button
+                } else {
+                    currentX = 0; // snap back
+                }
+                card.style.transform = `translateX(${currentX}px)`;
+            };
+
+            card.addEventListener('touchstart', handleStart, {passive: true});
+            card.addEventListener('touchmove', handleMove, {passive: true});
+            card.addEventListener('touchend', handleEnd);
+            card.addEventListener('mousedown', handleStart);
+            card.addEventListener('mousemove', handleMove);
+            card.addEventListener('mouseleave', handleEnd);
+            card.addEventListener('mouseup', handleEnd);
+
+            container.appendChild(delBtn);
+            container.appendChild(card);
+            vaultList.appendChild(container);
         });
     }
     lucide.createIcons();
@@ -265,6 +322,32 @@ function copyPass(text, e) {
     showToast("Copied!");
     addAuditLog("Password Copied");
     triggerHaptic('medium');
+}
+
+function deleteItem(id) {
+    if (!confirm("Are you sure you want to delete this account?")) return;
+    vaultItems = vaultItems.filter(item => item.id !== id);
+    saveToLocal();
+    addAuditLog("Deleted Account");
+    renderVault(searchInput.value);
+    syncCloud();
+    showToast("Deleted!");
+    triggerHaptic('medium');
+}
+
+function editItem(id) {
+    const item = vaultItems.find(i => i.id === id);
+    if (!item) return;
+    
+    document.getElementById('site-name').value = item.site;
+    document.getElementById('site-url').value = item.url || '';
+    document.getElementById('email').value = item.email || '';
+    document.getElementById('password').value = item.password;
+    document.getElementById('category').value = item.category;
+    
+    editingItemId = id;
+    document.getElementById('edit-screen-title').innerText = "Edit Account";
+    showScreen('edit-screen');
 }
 
 function showToast(msg) {
@@ -310,24 +393,40 @@ unlockBtn.onclick = () => {
 
 vaultForm.onsubmit = async (e) => {
     e.preventDefault();
-    const item = {
-        site: document.getElementById('site-name').value,
-        url: document.getElementById('site-url').value,
-        email: document.getElementById('email').value,
-        password: passwordInput.value,
-        category: document.getElementById('category').value,
-        id: Date.now()
-    };
-    if (document.getElementById('sync-keychain').checked && window.PasswordCredential) {
-        try {
-            const cred = new PasswordCredential({ id: item.email || item.site, password: item.password, name: item.site });
-            await navigator.credentials.store(cred);
-        } catch (err) {}
+    if (editingItemId) {
+        const item = vaultItems.find(i => i.id === editingItemId);
+        if (item) {
+            item.site = document.getElementById('site-name').value;
+            item.url = document.getElementById('site-url').value;
+            item.email = document.getElementById('email').value;
+            item.password = passwordInput.value;
+            item.category = document.getElementById('category').value;
+        }
+        addAuditLog(`Edited: ${item.site}`);
+        showToast("Updated!");
+    } else {
+        const item = {
+            site: document.getElementById('site-name').value,
+            url: document.getElementById('site-url').value,
+            email: document.getElementById('email').value,
+            password: passwordInput.value,
+            category: document.getElementById('category').value,
+            id: Date.now()
+        };
+        if (document.getElementById('sync-keychain').checked && window.PasswordCredential) {
+            try {
+                const cred = new PasswordCredential({ id: item.email || item.site, password: item.password, name: item.site });
+                await navigator.credentials.store(cred);
+            } catch (err) {}
+        }
+        vaultItems.push(item);
+        addAuditLog(`Added: ${item.site}`);
+        showToast("Saved!");
     }
-    vaultItems.push(item);
+    
     saveToLocal();
-    addAuditLog(`Added: ${item.site}`);
     vaultForm.reset();
+    editingItemId = null;
     showScreen('home-screen');
     renderVault();
     syncCloud(); // Auto-sync
@@ -353,7 +452,12 @@ exportBtn.onclick = () => {
     downloadAnchorNode.click();
     addAuditLog("Exported JSON");
 };
-addBtn.onclick = () => showScreen('edit-screen');
+addBtn.onclick = () => {
+    editingItemId = null;
+    vaultForm.reset();
+    document.getElementById('edit-screen-title').innerText = "Add Account";
+    showScreen('edit-screen');
+};
 backBtn.onclick = () => showScreen('home-screen');
 lockAppBtn.onclick = () => location.reload();
 bioSetupBtn.onclick = setupBiometrics;
