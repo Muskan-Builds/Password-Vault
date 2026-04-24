@@ -12,7 +12,7 @@ let inactivityTimer;
 let wrongAttempts = parseInt(localStorage.getItem('wrong_attempts') || '0');
 
 // Supabase Init
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Elements
 const lockScreen = document.getElementById('lock-screen');
@@ -108,7 +108,7 @@ async function syncCloud() {
 
     try {
         const encryptedData = encrypt(vaultItems, masterKey);
-        const { error } = await supabase.from('vaults').upsert({ 
+        const { error } = await sb.from('vaults').upsert({ 
             id: 'my-private-vault', 
             data: encryptedData,
             updated_at: new Date()
@@ -126,7 +126,7 @@ async function syncCloud() {
 // --- Load from Cloud (On Login) ---
 async function loadFromCloud() {
     try {
-        const { data, error } = await supabase.from('vaults').select('data').eq('id', 'my-private-vault').single();
+        const { data, error } = await sb.from('vaults').select('data').eq('id', 'my-private-vault').single();
         if (data && data.data) {
             const decrypted = decrypt(data.data, masterKey);
             if (decrypted) {
