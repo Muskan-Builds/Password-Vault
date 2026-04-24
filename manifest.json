@@ -1,6 +1,7 @@
 {
   "name": "Vault Secure Manager",
   "short_name": "Vault",
+  "version": "1.3",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#050505",
