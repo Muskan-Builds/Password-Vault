@@ -18,6 +18,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -34,13 +36,13 @@
                 <p id="lock-status" class="lock-status"></p>
             </div>
             <div class="lock-form">
-                <input type="password" id="master-pass-input" placeholder="••••••••" autofocus>
+                <input type="password" id="master-pass-input" placeholder="••••••••" autofocus autocomplete="current-password">
                 <button id="unlock-btn" class="primary-btn">Unlock Vault</button>
                 <button id="biometric-btn" class="secondary-btn" style="display: none;">
                     <i data-lucide="scan-face"></i> Use FaceID
                 </button>
             </div>
-            <p class="version-tag">v1.2</p>
+            <p class="version-tag">v1.5 - Secure Cloud</p>
         </section>
 
         <!-- Home Screen -->
@@ -49,11 +51,10 @@
                 <div class="header-top">
                     <h1>Vault</h1>
                     <div class="header-actions">
-                        <button class="icon-btn" id="bio-setup-btn" title="Setup Biometrics"><i data-lucide="fingerprint"></i></button>
-                        <button class="icon-btn" id="export-btn" title="Export Backup"><i data-lucide="download"></i></button>
-                        <button class="icon-btn" id="import-btn" title="Import Backup"><i data-lucide="upload"></i></button>
+                        <button class="icon-btn" id="audit-btn" title="Activity Log"><i data-lucide="history"></i></button>
+                        <button class="icon-btn" id="sync-cloud-btn" title="Cloud Sync"><i data-lucide="cloud-refresh-ccw"></i></button>
+                        <button class="icon-btn" id="export-btn" title="Export JSON"><i data-lucide="download"></i></button>
                         <button class="icon-btn" id="lock-app-btn" title="Lock App"><i data-lucide="lock"></i></button>
-                        <input type="file" id="import-file" style="display: none;" accept=".json">
                     </div>
                 </div>
                 <div class="search-bar">
@@ -77,6 +78,18 @@
             </button>
         </main>
 
+        <!-- Audit Log Screen -->
+        <section id="audit-screen" class="screen">
+            <header class="modal-header">
+                <button class="icon-btn audit-back-btn"><i data-lucide="chevron-left"></i></button>
+                <h2>Activity Log</h2>
+                <div style="width: 40px"></div>
+            </header>
+            <div id="audit-list" class="vault-list" style="margin-top: 20px;">
+                <!-- Logs injected here -->
+            </div>
+        </section>
+
         <!-- Add/Edit Screen -->
         <section id="edit-screen" class="screen">
             <header class="modal-header">
@@ -90,28 +103,28 @@
                     <label>Company Name</label>
                     <div class="input-box">
                         <i data-lucide="building"></i>
-                        <input type="text" id="site-name" placeholder="Google, Amazon..." required>
+                        <input type="text" id="site-name" name="organization" placeholder="Google, Amazon..." required>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Website URL (Optional)</label>
                     <div class="input-box">
                         <i data-lucide="link"></i>
-                        <input type="url" id="site-url" placeholder="https://career.google.com">
+                        <input type="url" id="site-url" name="url" placeholder="https://career.google.com">
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Login Email / Username</label>
                     <div class="input-box">
                         <i data-lucide="mail"></i>
-                        <input type="text" id="email" placeholder="email@example.com">
+                        <input type="text" id="email" name="username" placeholder="email@example.com" autocomplete="username">
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Category</label>
                     <div class="input-box">
                         <i data-lucide="tag"></i>
-                        <select id="category" required style="background:transparent; border:none; color:white; width:100%; outline:none;">
+                        <select id="category" name="category" required style="background:transparent; border:none; color:white; width:100%; outline:none;">
                             <option value="Career">Career</option>
                             <option value="Finance">Finance</option>
                             <option value="Social">Social</option>
@@ -123,9 +136,13 @@
                     <label>Password</label>
                     <div class="input-box">
                         <i data-lucide="key-round"></i>
-                        <input type="password" id="password" placeholder="••••••••" required>
+                        <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="new-password">
                         <button type="button" id="toggle-pass" class="icon-btn"><i data-lucide="eye"></i></button>
                     </div>
+                </div>
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                    <input type="checkbox" id="sync-keychain" style="width: 20px; height: 20px; accent-color: var(--accent);">
+                    <label style="margin: 0; font-size: 14px; color: var(--text);">Sync with System Keychain (Auto-fill)</label>
                 </div>
                 <button type="submit" class="primary-btn save-btn">Encrypt & Save</button>
             </form>

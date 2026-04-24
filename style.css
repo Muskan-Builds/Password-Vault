@@ -89,7 +89,7 @@ h1 {
 
 .header-actions {
     display: flex;
-    gap: 12px;
+    gap: 8px;
 }
 
 .icon-btn {
@@ -238,6 +238,32 @@ h1 {
 .card-actions {
     display: flex;
     gap: 8px;
+}
+
+/* Audit Logs */
+.audit-item {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-left: 4px solid var(--accent);
+}
+
+.audit-item.danger {
+    border-left-color: var(--danger);
+}
+
+.audit-info h4 {
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.audit-info span {
+    font-size: 11px;
+    color: var(--text-dim);
 }
 
 /* Lock Screen */
