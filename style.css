@@ -28,20 +28,17 @@ body {
 
 .app-container {
     width: 100%;
-    max-width: 450px;
+    max-width: 1200px;
     height: 100vh;
     background-color: var(--bg);
     position: relative;
     overflow: hidden;
+    margin: 0 auto;
 }
 
-@media (min-width: 450px) {
+@media (min-width: 1200px) {
     .app-container {
-        height: 850px;
-        margin-top: 20px;
-        border-radius: 40px;
-        border: 8px solid #1a1a1a;
-        box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+        box-shadow: 0 0 60px rgba(0,0,0,0.5);
     }
 }
 
@@ -76,6 +73,8 @@ header {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
 h1 {
@@ -91,6 +90,7 @@ h1 {
 .header-actions {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 .icon-btn {
@@ -484,32 +484,44 @@ h1 {
     width: 100%;
     margin-bottom: 12px;
     border-radius: 20px;
-    overflow: hidden;
-    background: var(--danger);
+    background: transparent;
     touch-action: pan-y; /* allow vertical scroll, intercept horizontal */
 }
 
-/* The delete button sits behind the card on the right */
-.delete-action-btn {
+/* Swipe Actions Container */
+.swipe-actions {
     position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 80px;
-    background: var(--danger);
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 1; /* behind card */
+}
+
+.swipe-action-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
     color: white;
     border: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
-    font-weight: 600;
     cursor: pointer;
-    z-index: 1; /* behind card */
+    background: var(--surface-light);
 }
 
-.delete-action-btn:active {
-    background: #dc2626;
+.swipe-action-btn:active {
+    transform: scale(0.9);
+}
+
+.swipe-action-btn.edit {
+    background: var(--accent);
+}
+
+.swipe-action-btn.delete {
+    background: var(--danger);
 }
 
 /* Redefine card to be a slider */
@@ -531,5 +543,34 @@ h1 {
 /* Remove hover/active scale when dragged */
 .vault-card.dragging {
     transition: none; /* disable transition while dragging */
+}
+
+/* Desktop Responsiveness */
+@media (min-width: 768px) {
+    .vault-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        grid-gap: 16px;
+        align-content: start;
+        padding-right: 8px;
+    }
+    .vault-item-container {
+        margin-bottom: 0;
+    }
+    #vault-form, .lock-form {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        max-width: 500px;
+        margin: 0 auto 20px auto;
+    }
+    #audit-list {
+        max-width: 600px;
+        margin: 0 auto;
+    }
 }
 

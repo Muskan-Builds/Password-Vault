@@ -235,10 +235,21 @@ function renderVault(filter = '') {
             const container = document.createElement('div');
             container.className = 'vault-item-container';
 
+            const swipeActions = document.createElement('div');
+            swipeActions.className = 'swipe-actions';
+
+            const editBtn = document.createElement('button');
+            editBtn.className = 'swipe-action-btn edit';
+            editBtn.innerHTML = '<i data-lucide="edit-2"></i>';
+            editBtn.onclick = () => editItem(item.id);
+
             const delBtn = document.createElement('button');
-            delBtn.className = 'delete-action-btn';
+            delBtn.className = 'swipe-action-btn delete';
             delBtn.innerHTML = '<i data-lucide="trash-2"></i>';
             delBtn.onclick = () => deleteItem(item.id);
+
+            swipeActions.appendChild(editBtn);
+            swipeActions.appendChild(delBtn);
 
             const card = document.createElement('div');
             card.className = 'vault-card';
@@ -253,7 +264,6 @@ function renderVault(filter = '') {
                     ${item.url ? `<button class="icon-btn" onclick="visitSite('${item.url}')"><i data-lucide="external-link"></i></button>` : ''}
                     <button class="icon-btn" onclick="togglePrivacy('${item.id}', this)"><i data-lucide="eye"></i></button>
                     <button class="icon-btn" onclick="copyPass('${item.password}', event)"><i data-lucide="copy"></i></button>
-                    <button class="icon-btn" onclick="editItem(${item.id})"><i data-lucide="edit-2"></i></button>
                 </div>
             `;
 
@@ -274,9 +284,9 @@ function renderVault(filter = '') {
                 if (!isDragging) return;
                 const x = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
                 currentX = x - startX;
-                // Allow only left swipe, cap at -100
+                // Allow only left swipe, cap at -130
                 if (currentX < 0) {
-                    currentX = Math.max(currentX, -100);
+                    currentX = Math.max(currentX, -130);
                     card.style.transform = `translateX(${currentX}px)`;
                 }
             };
@@ -286,7 +296,7 @@ function renderVault(filter = '') {
                 isDragging = false;
                 card.classList.remove('dragging');
                 if (currentX < threshold) {
-                    currentX = -80; // revealing delete button
+                    currentX = -120; // revealing 2 buttons
                 } else {
                     currentX = 0; // snap back
                 }
@@ -301,7 +311,7 @@ function renderVault(filter = '') {
             card.addEventListener('mouseleave', handleEnd);
             card.addEventListener('mouseup', handleEnd);
 
-            container.appendChild(delBtn);
+            container.appendChild(swipeActions);
             container.appendChild(card);
             vaultList.appendChild(container);
         });
