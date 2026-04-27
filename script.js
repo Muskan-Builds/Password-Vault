@@ -32,6 +32,8 @@ const unlockBtn = document.getElementById('unlock-btn');
 const auditBtn = document.getElementById('audit-btn');
 const syncCloudBtn = document.getElementById('sync-cloud-btn');
 const exportBtn = document.getElementById('export-btn');
+const importBtn = document.getElementById('import-btn');
+const importFileInput = document.getElementById('import-file-input');
 const lockAppBtn = document.getElementById('lock-app-btn');
 const bioSetupBtn = document.getElementById('bio-setup-btn');
 const biometricBtn = document.getElementById('biometric-btn');
@@ -451,6 +453,46 @@ exportBtn.onclick = () => {
     downloadAnchorNode.setAttribute("download", "vault_backup.json");
     downloadAnchorNode.click();
     addAuditLog("Exported JSON");
+};
+
+importBtn.onclick = () => importFileInput.click();
+
+importFileInput.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        try {
+            const importedData = JSON.parse(event.target.result);
+            if (Array.isArray(importedData)) {
+                let count = 0;
+                importedData.forEach(item => {
+                    if(item.site && item.password) {
+                        item.id = Date.now() + Math.floor(Math.random() * 10000); 
+                        vaultItems.push(item);
+                        count++;
+                    }
+                });
+                if(count > 0) {
+                    saveToLocal();
+                    addAuditLog(`Imported ${count} accounts`);
+                    renderVault(searchInput.value);
+                    syncCloud();
+                    showToast("Import Successful!");
+                    triggerHaptic('medium');
+                } else {
+                    showToast("No accounts found");
+                }
+            } else {
+                throw new Error("Invalid format");
+            }
+        } catch (err) {
+            showToast("Failed: Invalid JSON");
+        }
+    };
+    reader.readAsText(file);
+    e.target.value = ''; // Reset
 };
 addBtn.onclick = () => {
     editingItemId = null;
